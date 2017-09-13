@@ -1,0 +1,17 @@
+set sql_safe_updates = 0;
+
+update wbc.gdbc_contruction_tables 
+set CurrentTable = 'gpbc_industrial_04_2016'
+where Id = 'industrial';
+
+update wbc.gdbc_contruction_tables 
+set CurrentTable = 'gpbc_office_04_2016'
+where Id = 'office';
+
+update wbc.gdbc_contruction_tables 
+set CurrentTable = 'gpbc_residential_04_2016'
+where Id = 'residential';
+
+update wbc.gdbc_contruction_tables 
+set CurrentTable = 'gpbc_retail_04_2016'
+where Id = 'retail';
