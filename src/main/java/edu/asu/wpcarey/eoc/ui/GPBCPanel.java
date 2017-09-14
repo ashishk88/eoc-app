@@ -30,6 +30,7 @@ public class GPBCPanel extends JPanel implements ActionListener {
 	}
 
 	private final JButton initiateEconomicUpdate;
+	private final JButton initiateConstructionUpdate;
 	private final JLabel panelLabel;
 	private final GPBCService gpbcService;
 	private final GPBCPanelAdd gpbcPanelAdd;
@@ -47,6 +48,9 @@ public class GPBCPanel extends JPanel implements ActionListener {
 		initiateEconomicUpdate = new JButton(EOCAppConstants.GPBC_BUTTON_EF);
 		initiateEconomicUpdate.addActionListener(this);
 
+		initiateConstructionUpdate = new JButton(EOCAppConstants.GPBC_BUTTON_CF);
+		initiateConstructionUpdate.addActionListener(this);
+
 		setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -54,22 +58,26 @@ public class GPBCPanel extends JPanel implements ActionListener {
 		c.gridx = 0;
 		c.gridy = 0;
 		this.add(panelLabel, c);
-		
+
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 1;
-		this.add(initiateEconomicUpdate, c);
+		this.add(initiateConstructionUpdate, c);
 
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 2;
+		this.add(initiateEconomicUpdate, c);
 
 		gpbcPanelAdd = GPBCPanelAdd.createInstance(gpbcService);
 		gpbcPanelUpdate = GPBCPanelUpdate.createInstance(gpbcService);
 		JTabbedPane jtp = new JTabbedPane();
-	    jtp.addTab("Add a panelist", gpbcPanelAdd);
-	    jtp.addTab("Edit a panelist", gpbcPanelUpdate);
-	    
-		c.fill = GridBagConstraints.HORIZONTAL; 
-		c.gridx = 0; 
-		c.gridy = 2;
+		jtp.addTab("Add a panelist", gpbcPanelAdd);
+		jtp.addTab("Edit a panelist", gpbcPanelUpdate);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 3;
 		this.add(jtp, c);
 	}
 
@@ -78,6 +86,13 @@ public class GPBCPanel extends JPanel implements ActionListener {
 		if (e.getSource().equals(initiateEconomicUpdate)) {
 			JOptionPane.showMessageDialog(this, EOCAppConstants.GPBC_ALERT_ED);
 			gpbcService.initiateEFUpdate();
-		} 
+		} else if (e.getSource().equals(initiateConstructionUpdate)) {
+			GPBCConstructionForecastsPanel constructionForecastsPanel = GPBCConstructionForecastsPanel.createInstance();
+			int result = JOptionPane.showConfirmDialog(null, constructionForecastsPanel, "Please fill up the data tables",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			if (result == JOptionPane.OK_OPTION) {
+
+			}
+		}
 	}
 }

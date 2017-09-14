@@ -5,25 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 public class DAOUtils {
 
 	public enum GBPCConstructionType {
-		RETAIL("retail", "gpbc_retail"), OFFICE("office", "gpbc_office"), INDUSTRY("industrial",
+		RETAIL("retail", "gpbc_retail"), OFFICE("office", "gpbc_office"), INDUSTRIAL("industrial",
 				"gpbc_industrial"), RESIDENTIAL("residential", "gpbc_residential");
-		public static String getTablePrefix(final String value) {
-			for (final GBPCConstructionType constructionType : GBPCConstructionType.values()) {
-				if (constructionType.type.equals(value.toLowerCase())) {
-					return constructionType.tablePrefix;
-				}
-			}
-			return StringUtils.EMPTY;
-		}
-
-		public static String parseString(final String value) {
-			for (final GBPCConstructionType constructionType : GBPCConstructionType.values()) {
-				if (constructionType.type.equals(value.toLowerCase())) {
-					return constructionType.type;
-				}
-			}
-			return StringUtils.EMPTY;
-		}
 
 		private final String type;
 
@@ -38,6 +21,11 @@ public class DAOUtils {
 			return type;
 		}
 
+		public String getTablePrefix() {
+			return tablePrefix;
+		}
+		
+		
 	}
 
 	static final String MYSQL_CONNECTOR = "com.mysql.jdbc.Driver";

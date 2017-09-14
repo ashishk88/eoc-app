@@ -11,11 +11,9 @@ import edu.asu.wpcarey.eoc.utils.EOCAppConstants;
 
 public class JobGrowthService {
 
-	private final JobGrowthDAO jobGrowthDAO;
 
 	public JobGrowthService() {
 		super();
-		jobGrowthDAO = JobGrowthDAO.createInstance();
 	}
 
 	public static JobGrowthService createInstance() {
