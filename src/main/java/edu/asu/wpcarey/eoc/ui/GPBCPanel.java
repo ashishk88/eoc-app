@@ -2,28 +2,29 @@ package edu.asu.wpcarey.eoc.ui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.apache.poi.ss.usermodel.Workbook;
-
+import edu.asu.wpcarey.eoc.dao.DAOUtils;
 import edu.asu.wpcarey.eoc.service.GPBCService;
 import edu.asu.wpcarey.eoc.utils.EOCAppConstants;
 
 public class GPBCPanel extends JPanel implements ActionListener {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2709029311957918538L;
 
 	public static JPanel createPanel() {
 		return new GPBCPanel();
@@ -79,6 +80,7 @@ public class GPBCPanel extends JPanel implements ActionListener {
 		c.gridx = 0;
 		c.gridy = 3;
 		this.add(jtp, c);
+		
 	}
 
 	@Override
@@ -88,10 +90,13 @@ public class GPBCPanel extends JPanel implements ActionListener {
 			gpbcService.initiateEFUpdate();
 		} else if (e.getSource().equals(initiateConstructionUpdate)) {
 			GPBCConstructionForecastsPanel constructionForecastsPanel = GPBCConstructionForecastsPanel.createInstance();
+			UIManager.put("OptionPane.okButtonText", "Save");
 			int result = JOptionPane.showConfirmDialog(null, constructionForecastsPanel, "Please fill up the data tables",
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-			if (result == JOptionPane.OK_OPTION) {
-
+			if (result == JOptionPane.OK_OPTION) {				
+				String response = gpbcService.saveData(constructionForecastsPanel);
+				UIManager.put("OptionPane.okButtonText", "OK");
+				JOptionPane.showMessageDialog(this, response);
 			}
 		}
 	}

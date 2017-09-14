@@ -1,7 +1,5 @@
 package edu.asu.wpcarey.eoc.dao;
 
-import org.apache.commons.lang3.StringUtils;
-
 public class DAOUtils {
 
 	public enum GBPCConstructionType {
@@ -24,8 +22,6 @@ public class DAOUtils {
 		public String getTablePrefix() {
 			return tablePrefix;
 		}
-		
-		
 	}
 
 	static final String MYSQL_CONNECTOR = "com.mysql.jdbc.Driver";

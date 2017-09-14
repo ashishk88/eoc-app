@@ -5,11 +5,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.asu.wpcarey.eoc.dao.DAOUtils.GBPCConstructionType;
+import edu.asu.wpcarey.eoc.ui.GPBCConstructionForecastsPanel;
+import edu.asu.wpcarey.eoc.dao.DAOUtils;
 import edu.asu.wpcarey.eoc.dao.GPBCDAO;
 import edu.asu.wpcarey.eoc.utils.EOCAppConstants;
 
@@ -19,7 +23,6 @@ public class GPBCService {
 		return new GPBCService();
 	}
 
-	private String type;
 	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 	private Pattern pattern;
@@ -64,6 +67,37 @@ public class GPBCService {
 			return "Email address " + email + " is invalid";
 		} else {
 			return "User has been added.";
+		}
+	}
+
+	public String saveData(GPBCConstructionForecastsPanel constructionForecastsPanel) {
+		int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+		try {
+			if (GPBCConstructionForecastsPanel.getQuarter().equals("Q1")) {
+				for(DAOUtils.GBPCConstructionType type : DAOUtils.GBPCConstructionType.values()) {
+					int year = currentYear - 1;
+					gpbcdao.truncateTable(type);
+					for(int i=0; i < 3; i++) {
+						String[][] data = constructionForecastsPanel.getData(type, year);
+						gpbcdao.saveData(data, type, year);
+						year++;
+					}
+				}
+			} else {
+				for(DAOUtils.GBPCConstructionType type : DAOUtils.GBPCConstructionType.values()) {
+					int year = currentYear;
+					gpbcdao.truncateTable(type);
+					for(int i=0; i < 2; i++) {
+						String[][] data = constructionForecastsPanel.getData(type, year);
+						gpbcdao.saveData(data, type, year);
+						year++;
+					}
+				}
+			}
+			return "Update Successful";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Update Failed : "+ e.getMessage();
 		}
 	}
 }
