@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -17,6 +18,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -57,7 +60,7 @@ public class MainUI extends JFrame implements ActionListener {
 	}
 
 	static {
-		// checkSecurity();
+		checkSecurity();
 	}
 
 	private static void createAndDisplayGUI() {
@@ -78,7 +81,7 @@ public class MainUI extends JFrame implements ActionListener {
 		app.addContent();
 		app.setVisible(true);
 		app.setResizable(true);
-		app.setSize(new Dimension(440, 720));
+		app.setSize(new Dimension(440, 780));
 	}
 
 	public static void main(final String[] args) {
@@ -105,7 +108,7 @@ public class MainUI extends JFrame implements ActionListener {
 		}
 	}
 
-	private void addContent() {
+	private void addContent() {        
 		final JMenuBar appMenu = new JMenuBar();
 
 		final JMenu fileMenu = new JMenu(EOCAppConstants.MENU_FILE);
@@ -133,9 +136,9 @@ public class MainUI extends JFrame implements ActionListener {
 
 		setJMenuBar(appMenu);
 
-		this.add(JobGrowthPanel.createPanel(), BorderLayout.CENTER);
-		this.add(GPBCPanel.createPanel(), BorderLayout.SOUTH);
-		this.add(WBCPanel.createPanel(), BorderLayout.NORTH);
+		this.add(JobGrowthPanel.createPanel(this), BorderLayout.CENTER);
+		this.add(GPBCPanel.createPanel(this), BorderLayout.SOUTH);
+		this.add(WBCPanel.createPanel(this), BorderLayout.NORTH);
 	}
 }
 

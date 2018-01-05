@@ -11,8 +11,12 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import org.apache.commons.lang3.StringUtils;
+
+import edu.asu.wpcarey.eoc.beans.PanelistSearchBean;
 import edu.asu.wpcarey.eoc.service.GPBCService;
 import edu.asu.wpcarey.eoc.utils.EOCAppConstants;
 
@@ -34,6 +38,7 @@ public class GPBCPanelUpdate extends JPanel implements ActionListener {
 
 	private JButton searchUser;
 	private JButton updateUser;
+	private PanelistSearchBean panelistSearchBean;
 
 	public static GPBCPanelUpdate createInstance(GPBCService gPBCService) {
 		return new GPBCPanelUpdate(gPBCService);
@@ -50,8 +55,7 @@ public class GPBCPanelUpdate extends JPanel implements ActionListener {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 
-		searchTextField = new JTextField();
-		searchTextField.setColumns(10);
+		searchTextField = new JTextField(12);
 		c.gridx = 1;
 		c.gridy = 0;
 		this.add(searchTextField, c);
@@ -67,11 +71,6 @@ public class GPBCPanelUpdate extends JPanel implements ActionListener {
 		this.add(searchUser, c);
 		searchUser.addActionListener(this);
 
-		firstNameField = new JTextField();
-		c.gridx = 1;
-		c.gridy = 2;
-		this.add(firstNameField, c);
-
 		firstName = new JLabel("First Name");
 		c.gridx = 0;
 		c.gridy = 2;
@@ -79,7 +78,7 @@ public class GPBCPanelUpdate extends JPanel implements ActionListener {
 
 		firstNameField = new JTextField();
 		c.gridx = 1;
-		c.gridy = 0;
+		c.gridy = 2;
 		this.add(firstNameField, c);
 
 		lastName = new JLabel("Last Name");
@@ -121,11 +120,48 @@ public class GPBCPanelUpdate extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (firstNameField.getText().equals("") || lastNameField.getText().equals("")) {
-			JOptionPane.showMessageDialog(this, "Please fill the name field.");
+		if(e.getSource().equals(this.updateUser)) {
+			if (firstNameField.getText().equals("") || lastNameField.getText().equals("") || emailAddressField.getText().equals("") || organizationField.getText().equals("")) {
+				JOptionPane.showMessageDialog(this, "Please fill all the fields.");
+			} else {
+				int confirm = JOptionPane.showConfirmDialog(this, "Are you sure?");
+				if(confirm == JOptionPane.YES_OPTION) {
+					panelistSearchBean.setFirstName(firstNameField.getText());
+					panelistSearchBean.setLastName(lastNameField.getText());
+					panelistSearchBean.setEmailAddress(emailAddressField.getText());
+					panelistSearchBean.setOrganization(organizationField.getText());
+					String response = gpbcService.updateUser(panelistSearchBean);
+					JOptionPane.showMessageDialog(this, response);
+					firstNameField.setText(StringUtils.EMPTY);
+					lastNameField.setText(StringUtils.EMPTY);
+					emailAddressField.setText(StringUtils.EMPTY);
+					organizationField.setText(StringUtils.EMPTY);
+					
+				}
+			}
 		} else {
-			JOptionPane.showMessageDialog(this, gpbcService.addUser(firstNameField.getText(), lastNameField.getText(),
-					emailAddressField.getText(), organizationField.getText()));
+			String searchString = this.searchTextField.getText();
+			if(searchString.equals(StringUtils.EMPTY)) {
+				JOptionPane.showMessageDialog(this, "Please enter a partial email address.");
+			} else {
+				panelistSearchBean = gpbcService.searchUser(searchString);
+				if (panelistSearchBean.getResponseState().equals(PanelistSearchBean.ResponseState.OK)) {
+					SwingUtilities.invokeLater(new Runnable() {						
+						@Override
+						public void run() {
+							firstNameField.setText(panelistSearchBean.getFirstName());
+							lastNameField.setText(panelistSearchBean.getLastName());
+							emailAddressField.setText(panelistSearchBean.getEmailAddress());
+							organizationField.setText(panelistSearchBean.getOrganization());
+							updateUser.setEnabled(true);
+						}
+					});				
+				} else if(panelistSearchBean.getResponseState().equals(PanelistSearchBean.ResponseState.NO_DATA)){
+					JOptionPane.showMessageDialog(this, "No data found for the search string");
+				} else {
+					JOptionPane.showMessageDialog(this, "An error occurred.");
+				}
+			}
 		}
 	}
 }

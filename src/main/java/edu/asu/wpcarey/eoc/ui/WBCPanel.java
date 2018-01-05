@@ -1,5 +1,7 @@
 package edu.asu.wpcarey.eoc.ui;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -10,7 +12,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
 import edu.asu.wpcarey.eoc.service.WBCService;
@@ -18,17 +22,18 @@ import edu.asu.wpcarey.eoc.utils.EOCAppConstants;
 
 public class WBCPanel extends JPanel implements ActionListener {
 
-	public static JPanel createPanel() {
-		return new WBCPanel();
+	public static JPanel createPanel(MainUI mainUI) {
+		return new WBCPanel(mainUI);
 	}
 
 	private final JButton initiateWBC;
+	private final JButton loadWBCContacts;
 	private final JLabel panelLabel;
 	private final WBCService wBCService;
 	private final WBCPanelAdd wbcPanelAdd;
 	private final WBCPanelUpdate wbcPanelUpdate;
 
-	public WBCPanel() {
+	public WBCPanel(MainUI mainUI) {
 		wBCService = WBCService.createInstance();
 		this.setSize(640, 160);
 		TitledBorder title;
@@ -46,11 +51,20 @@ public class WBCPanel extends JPanel implements ActionListener {
 		c.gridx = 0;
 		c.gridy = 0;
 		this.add(panelLabel, c);
-
+		
+		loadWBCContacts = new JButton("Load WBC Contacts to Qualtrics");
+		loadWBCContacts.addActionListener(this);
 		c.fill = GridBagConstraints.HORIZONTAL;
 
 		c.gridx = 0;
 		c.gridy = 1;
+		this.add(loadWBCContacts, c);
+		
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+
+		c.gridx = 0;
+		c.gridy = 2;
 		this.add(initiateWBC, c);
 
 		wbcPanelAdd = WBCPanelAdd.createInstance(wBCService);
@@ -61,15 +75,23 @@ public class WBCPanel extends JPanel implements ActionListener {
 		
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
-		c.gridy = 2;
+		c.gridy = 3;
 		this.add(jtp, c);
 	}
 
 	@Override
-	public void actionPerformed(final ActionEvent arg0) {
-		JOptionPane.showMessageDialog(this, EOCAppConstants.WBC_INITIATED);
-		String msg = wBCService.initiateUpdate();
-		JOptionPane.showMessageDialog(this, msg);
+	public void actionPerformed(final ActionEvent e) {
+		if(e.getSource().equals(this.initiateWBC)) {
+			CommandUI commandUI  = CommandUI.createInstance();
+			commandUI.setFile(EOCAppConstants.WBC_UPDATE_FILE);
+			commandUI.setMessage("WBC update initiated.");
+			commandUI.start();
+		} else if(e.getSource().equals(this.loadWBCContacts)) {
+			CommandUI commandUI  = CommandUI.createInstance();
+			commandUI.setFile(EOCAppConstants.WBC_UPLOAD_CONTACTS);
+			commandUI.setMessage("WBC upload contacts initiated.");
+			commandUI.start();
+		} 
 	}
 
 }

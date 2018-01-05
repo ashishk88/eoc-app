@@ -7,15 +7,16 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
-import com.sun.xml.bind.v2.schemagen.xmlschema.List;
+import org.apache.commons.lang3.StringUtils;
 
+import edu.asu.wpcarey.eoc.beans.PanelistSearchBean;
 import edu.asu.wpcarey.eoc.service.WBCService;
 import edu.asu.wpcarey.eoc.utils.EOCAppConstants;
 
@@ -26,16 +27,15 @@ public class WBCPanelUpdate extends JPanel implements ActionListener {
 	private JLabel lastName;
 	private JLabel emailAddress;
 	private JLabel organization;
-	private JLabel state;
 
 	private JTextField searchTextField;
 	private JTextField firstNameField;
 	private JTextField lastNameField;
 	private JTextField emailAddressField;
 	private JTextField organizationField;
-	private JComboBox<String> stateField;
 	private WBCService wbcService;
 
+	private PanelistSearchBean panelistSearchBean;
 
 	private JButton searchUser;
 	private JButton updateUser;
@@ -55,7 +55,7 @@ public class WBCPanelUpdate extends JPanel implements ActionListener {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 
-		searchTextField = new JTextField();
+		searchTextField = new JTextField(12);
 		c.gridx = 1;
 		c.gridy = 0;
 		this.add(searchTextField, c);
@@ -71,11 +71,6 @@ public class WBCPanelUpdate extends JPanel implements ActionListener {
 		this.add(searchUser, c);
 		searchUser.addActionListener(this);
 
-		firstNameField = new JTextField();
-		c.gridx = 1;
-		c.gridy = 2;
-		this.add(firstNameField, c);
-
 		firstName = new JLabel("First Name");
 		c.gridx = 0;
 		c.gridy = 2;
@@ -83,7 +78,7 @@ public class WBCPanelUpdate extends JPanel implements ActionListener {
 
 		firstNameField = new JTextField();
 		c.gridx = 1;
-		c.gridy = 0;
+		c.gridy = 2;
 		this.add(firstNameField, c);
 
 		lastName = new JLabel("Last Name");
@@ -106,16 +101,6 @@ public class WBCPanelUpdate extends JPanel implements ActionListener {
 		c.gridy = 4;
 		this.add(emailAddressField, c);
 
-		state = new JLabel("Select State");
-		c.gridx = 0;
-		c.gridy = 5;
-		this.add(state, c);
-
-		stateField = new JComboBox<>(EOCAppConstants.EOC_STATES);
-		c.gridx = 1;
-		c.gridy = 5;
-		this.add(stateField, c);
-
 		organization = new JLabel("Organization");
 		c.gridx = 0;
 		c.gridy = 6;
@@ -127,6 +112,7 @@ public class WBCPanelUpdate extends JPanel implements ActionListener {
 		this.add(organizationField, c);
 
 		updateUser = new JButton("Update User");
+		updateUser.setEnabled(false);
 		c.gridx = 0;
 		c.gridy = 7;
 		this.add(updateUser, c);
@@ -136,15 +122,48 @@ public class WBCPanelUpdate extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource().equals(this.updateUser)) {
-			if (firstNameField.getText().equals("") || lastNameField.getText().equals("")) {
-				JOptionPane.showMessageDialog(this, "Please fill the name field.");
+			if (firstNameField.getText().equals("") || lastNameField.getText().equals("") || emailAddressField.getText().equals("") || organizationField.getText().equals("")) {
+				JOptionPane.showMessageDialog(this, "Please fill all the fields.");
 			} else {
-				JOptionPane.showMessageDialog(this, wbcService.addUser(firstNameField.getText(), lastNameField.getText(),
-						emailAddressField.getText(), organizationField.getText(), stateField.getSelectedItem().toString()));
+				int confirm = JOptionPane.showConfirmDialog(this, "Are you sure?");
+				if(confirm == JOptionPane.YES_OPTION) {
+					panelistSearchBean.setFirstName(firstNameField.getText());
+					panelistSearchBean.setLastName(lastNameField.getText());
+					panelistSearchBean.setEmailAddress(emailAddressField.getText());
+					panelistSearchBean.setOrganization(organizationField.getText());
+					String response = wbcService.updateUser(panelistSearchBean);
+					JOptionPane.showMessageDialog(this, response);
+					firstNameField.setText(StringUtils.EMPTY);
+					lastNameField.setText(StringUtils.EMPTY);
+					emailAddressField.setText(StringUtils.EMPTY);
+					organizationField.setText(StringUtils.EMPTY);
+				}
 			}
 		} else {
 			String searchString = this.searchTextField.getText();
-			
+			if(searchString.equals(StringUtils.EMPTY)) {
+				JOptionPane.showMessageDialog(this, "Please enter a partial email address.");
+			} else {
+				panelistSearchBean = wbcService.searchUser(searchString);
+				if (panelistSearchBean.getResponseState().equals(PanelistSearchBean.ResponseState.OK)) {
+					SwingUtilities.invokeLater(new Runnable() {						
+						@Override
+						public void run() {
+							firstNameField.setText(panelistSearchBean.getFirstName());
+							firstNameField.repaint();
+							lastNameField.setText(panelistSearchBean.getLastName());
+							emailAddressField.setText(panelistSearchBean.getEmailAddress());
+							organizationField.setText(panelistSearchBean.getOrganization());
+							firstNameField.setText(panelistSearchBean.getFirstName());	
+							updateUser.setEnabled(true);
+						}
+					});				
+				} else if(panelistSearchBean.getResponseState().equals(PanelistSearchBean.ResponseState.NO_DATA)){
+					JOptionPane.showMessageDialog(this, "No data found for the search string");
+				} else {
+					JOptionPane.showMessageDialog(this, "An error occurred.");
+				}
+			}
 		}
 		
 	}

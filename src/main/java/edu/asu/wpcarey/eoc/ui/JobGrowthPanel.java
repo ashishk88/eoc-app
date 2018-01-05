@@ -9,25 +9,27 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import edu.asu.wpcarey.eoc.service.JobGrowthService;
+import edu.asu.wpcarey.eoc.utils.EOCAppConstants;
 
 public class JobGrowthPanel extends JPanel implements ActionListener {
 
-	public static JPanel createPanel() {
-		return new JobGrowthPanel();
-	}
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3871419017267858569L;
 
+	public static JPanel createPanel(MainUI mainUI) {
+		return new JobGrowthPanel(mainUI);
+	}
+	
 	private final JButton initiateJG;
 	private final JLabel panelLabel;
 	private final JCheckBox loadMetaData;
-	private final Boolean loadMetaDataFlag = Boolean.FALSE;
-	private final JobGrowthService jobGrowthService;
-
-	public JobGrowthPanel() {
+	
+	public JobGrowthPanel(MainUI mainUI) {
 		this.setSize(640, 160);
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder("Job Growth");
@@ -61,16 +63,20 @@ public class JobGrowthPanel extends JPanel implements ActionListener {
 		c.gridx = 2;
 		c.gridy = 2;
 		this.add(loadMetaData, c);
-		jobGrowthService = JobGrowthService.createInstance();
 	}
 
 	@Override
 	public void actionPerformed(final ActionEvent arg0) {
-		JOptionPane.showMessageDialog(this, "Job growth has been initiated.");
 		final boolean metaDataFlag = loadMetaData.isSelected();
-
-		final String response = jobGrowthService.initiateJobGrowth(true, metaDataFlag);
-		JOptionPane.showMessageDialog(this, response);
+		if(metaDataFlag) {
+			CommandUI commandUI  = CommandUI.createInstance();
+			commandUI.setFile(EOCAppConstants.JOB_GROWTH_MD_UPDATE_FILE);
+			commandUI.setMessage("Job Growth Meta Data Load Initiated.");
+			commandUI.start();
+		}
+		CommandUI commandUI  = CommandUI.createInstance();
+		commandUI.setFile(EOCAppConstants.JOB_GROWTH_UPDATE_FILE);
+		commandUI.setMessage("Job Growth Update Initiated.");
+		commandUI.start();
 	}
-
 }

@@ -4,7 +4,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -15,7 +14,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
-import edu.asu.wpcarey.eoc.dao.DAOUtils;
 import edu.asu.wpcarey.eoc.service.GPBCService;
 import edu.asu.wpcarey.eoc.utils.EOCAppConstants;
 
@@ -26,18 +24,19 @@ public class GPBCPanel extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = -2709029311957918538L;
 
-	public static JPanel createPanel() {
-		return new GPBCPanel();
+	public static JPanel createPanel(MainUI mainUI) {
+		return new GPBCPanel(mainUI);
 	}
 
 	private final JButton initiateEconomicUpdate;
+	private final JButton loadWBCContacts;
 	private final JButton initiateConstructionUpdate;
 	private final JLabel panelLabel;
 	private final GPBCService gpbcService;
 	private final GPBCPanelAdd gpbcPanelAdd;
 	private final GPBCPanelUpdate gpbcPanelUpdate;
 
-	public GPBCPanel() {
+	public GPBCPanel(MainUI mainUI) {
 		this.setSize(640, 160);
 		TitledBorder title;
 		title = BorderFactory.createTitledBorder(EOCAppConstants.BORDER_GPBC_TITLE);
@@ -59,15 +58,23 @@ public class GPBCPanel extends JPanel implements ActionListener {
 		c.gridx = 0;
 		c.gridy = 0;
 		this.add(panelLabel, c);
-
+		
+		loadWBCContacts = new JButton("Load GPBC Contacts to Qualtrics");
+		loadWBCContacts.addActionListener(this);
 		c.fill = GridBagConstraints.HORIZONTAL;
+
 		c.gridx = 0;
 		c.gridy = 1;
-		this.add(initiateConstructionUpdate, c);
+		this.add(loadWBCContacts, c);
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 2;
+		this.add(initiateConstructionUpdate, c);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 3;
 		this.add(initiateEconomicUpdate, c);
 
 		gpbcPanelAdd = GPBCPanelAdd.createInstance(gpbcService);
@@ -78,7 +85,7 @@ public class GPBCPanel extends JPanel implements ActionListener {
 
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = 4;
 		this.add(jtp, c);
 		
 	}
@@ -86,8 +93,10 @@ public class GPBCPanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource().equals(initiateEconomicUpdate)) {
-			JOptionPane.showMessageDialog(this, EOCAppConstants.GPBC_ALERT_ED);
-			gpbcService.initiateEFUpdate();
+			CommandUI commandUI  = CommandUI.createInstance();
+			commandUI.setFile(EOCAppConstants.GPBC_UPDATE_FILE);
+			commandUI.setMessage("GPBC update initiated.");
+			commandUI.start();
 		} else if (e.getSource().equals(initiateConstructionUpdate)) {
 			GPBCConstructionForecastsPanel constructionForecastsPanel = GPBCConstructionForecastsPanel.createInstance();
 			UIManager.put("OptionPane.okButtonText", "Save");
@@ -98,6 +107,11 @@ public class GPBCPanel extends JPanel implements ActionListener {
 				UIManager.put("OptionPane.okButtonText", "OK");
 				JOptionPane.showMessageDialog(this, response);
 			}
+		} else if (e.getSource().equals(loadWBCContacts)) {
+			CommandUI commandUI  = CommandUI.createInstance();
+			commandUI.setFile(EOCAppConstants.GPBC_UPLOAD_CONTACTS);
+			commandUI.setMessage("GPBC upload contacts initiated.");
+			commandUI.start();
 		}
 	}
 }

@@ -1,5 +1,10 @@
 package edu.asu.wpcarey.eoc.dao;
 
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+
 public class DAOUtils {
 
 	public enum GBPCConstructionType {
@@ -39,4 +44,25 @@ public class DAOUtils {
 	static final String JG_DB_USERNAME = "job_growthmaster";
 
 	static final String JG_DB_PASSWORD = "jobgrowthpass";
+	
+	public static String getQualtricsResponseString(String URL) {
+		Client client = Client.create();
+		WebResource webResource =client.resource(URL);
+		ClientResponse response = null;
+		response = webResource.header("Content-Type", "application/json;charset=UTF-8")
+		    .header("X-API-TOKEN", "Eo9Cq2pIMlm9djm7obIjoIUNANYgxcG2fqM8QawD")
+		    .get(ClientResponse.class);
+		return response.getEntity(String.class);
+	}
+	
+	public static String updateUser(String url, String firstName, String lastName, String email, String org) {
+		Client client = Client.create();
+		WebResource webResource =client.resource(url);
+		
+		String data = "{\"firstName\": \""+ firstName +"\", \"lastName\":\""+ lastName +"\", \"email\":\""+ email +"\"}";
+        ClientResponse response = webResource.header("Content-Type", "application/json;charset=UTF-8")
+    		    .header("X-API-TOKEN", "Eo9Cq2pIMlm9djm7obIjoIUNANYgxcG2fqM8QawD")
+    		    .put(ClientResponse.class, data);
+        return response.toString();
+	}
 }

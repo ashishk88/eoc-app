@@ -41,30 +41,7 @@ public class EOCAppConstants {
 
 	// Qualtrics connection details
 	public static class Qualtrics {
-
-		public static Map<String, String> qualtricsWBCParam() {
-			Map<String, String> params = new HashMap<>();
-			params.put("Request", "getLegacyResponseData");
-			params.put("User", "wpcareyseid@asu.edu");
-			params.put("Token", "Eo9Cq2pIMlm9djm7obIjoIUNANYgxcG2fqM8QawD");
-			params.put("SurveyID", "SV_0PrXQuBvQeRAaxv");
-			params.put("Format", "CSV");
-			params.put("Labels", "1");
-			params.put("Version", "2.3");
-			return params;
-		}
-
-		public static Map<String, String> qualtricsGPBCParam() {
-			Map<String, String> params = new HashMap<>();
-			params.put("Request", "getLegacyResponseData");
-			params.put("User", "wpcareyseid@asu.edu");
-			params.put("Token", "Eo9Cq2pIMlm9djm7obIjoIUNANYgxcG2fqM8QawD");
-			params.put("SurveyID", "SV_0GSrDtYvoS62wvz");
-			params.put("Format", "CSV");
-			params.put("Labels", "1");
-			params.put("Version", "2.3");
-			return params;
-		}
+		public static final String GET_MAILING_LIST = "https://ca1.qualtrics.com/API/v3/mailinglists";
 	}
 
 	public static final String APP_DATE_FORMAT = "dd_MM_yyyy";
@@ -77,9 +54,11 @@ public class EOCAppConstants {
 	public static final String[] EOC_STATES = new String[] { "Arizona", "California", "Colorado", "Idaho", "Montana",
 			"Nevada", "NewMexico", "Oregon", "Texas", "Utah", "Washington", "Wyoming" };
 	
-	public static final String WBC_UPDATE_FILE = "P:\\SEID\\EOC_Program\\wbc\\wbc_update.py";
-	public static final String GPBC_UPDATE_FILE = "P:\\SEID\\EOC_Program\\gpbc\\gpbc_update.py";	
-	public static final String JOB_GROWTH_UPDATE_FILE = "P:\\SEID\\EOC_Program\\job_growth_python\\Job_Growth_Data_v5.py";
-	public static final String JOB_GROWTH_MD_UPDATE_FILE = "P:\\SEID\\EOC_Program\\job_growth_python\\LoadMetaData.py";
+	public static final String WBC_UPDATE_FILE = "P:\\SEID\\EOC_Project\\wbc\\wbc_update.py";
+	public static final String GPBC_UPDATE_FILE = "P:\\SEID\\EOC_Project\\gpbc\\gpbc_update.py";	
+	public static final String WBC_UPLOAD_CONTACTS = "P:\\SEID\\EOC_Project\\wbc\\qualtrics_upload_wbc_panel.py";
+	public static final String GPBC_UPLOAD_CONTACTS = "P:\\SEID\\EOC_Project\\gpbc\\qualtrics_upload_gpbc_panel.py";	
+	public static final String JOB_GROWTH_UPDATE_FILE = "P:\\SEID\\EOC_Project\\job_growth_python\\Job_Growth_Data_v5.py";
+	public static final String JOB_GROWTH_MD_UPDATE_FILE = "P:\\SEID\\EOC_Project\\job_growth_python\\LoadMetaData.py";
 
 }

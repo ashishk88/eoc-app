@@ -11,10 +11,15 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.asu.wpcarey.eoc.dao.DAOUtils.GBPCConstructionType;
-import edu.asu.wpcarey.eoc.ui.GPBCConstructionForecastsPanel;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.asu.wpcarey.eoc.beans.PanelistSearchBean;
+import edu.asu.wpcarey.eoc.beans.qualtrics.contact.Contacts;
+import edu.asu.wpcarey.eoc.beans.qualtrics.mailinglist.Element;
+import edu.asu.wpcarey.eoc.beans.qualtrics.mailinglist.MailingList;
 import edu.asu.wpcarey.eoc.dao.DAOUtils;
 import edu.asu.wpcarey.eoc.dao.GPBCDAO;
+import edu.asu.wpcarey.eoc.ui.GPBCConstructionForecastsPanel;
 import edu.asu.wpcarey.eoc.utils.EOCAppConstants;
 
 public class GPBCService {
@@ -99,5 +104,54 @@ public class GPBCService {
 			e.printStackTrace();
 			return "Update Failed : "+ e.getMessage();
 		}
+	}
+
+	public PanelistSearchBean searchUser(String searchString) {
+		String[] data = gpbcdao.searchUser(searchString);
+		PanelistSearchBean panelistSearchBean = new PanelistSearchBean(data);
+		if(!( panelistSearchBean.getEmailAddress() == null && panelistSearchBean.getEmailAddress().equals(StringUtils.EMPTY))) {
+			getAndUpdateDetailsFromQualtrics(panelistSearchBean);
+		}
+		return panelistSearchBean;
+	}
+
+	private void getAndUpdateDetailsFromQualtrics(PanelistSearchBean panelistSearchBean) {
+		String response = DAOUtils.getQualtricsResponseString(EOCAppConstants.Qualtrics.GET_MAILING_LIST);
+		ObjectMapper mapper = new ObjectMapper();
+		String mailingId = null;
+		try {
+			MailingList mailingList = mapper.readValue(response, MailingList.class);
+			for(Element element : mailingList.getResult().getElements()) {
+				if(element.getName().equals("gpbc")) {
+					mailingId = element.getId();
+					break;
+				}
+			}
+			
+			if(mailingId != null) {
+				response = DAOUtils.getQualtricsResponseString(EOCAppConstants.Qualtrics.GET_MAILING_LIST+"/"+ mailingId +"/contacts");
+				Contacts contacts = mapper.readValue(response, Contacts.class);
+				for(edu.asu.wpcarey.eoc.beans.qualtrics.contact.Element contact : contacts.getResult().getElements()) {
+					if(contact.getEmail().equalsIgnoreCase(panelistSearchBean.getEmailAddress())) {
+						panelistSearchBean.setMailingId(mailingId);
+						panelistSearchBean.setContactId(contact.getId());
+						break;
+					}
+				}
+			} else {
+				return;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String updateUser(PanelistSearchBean panelistSearchBean) {
+		String url = EOCAppConstants.Qualtrics.GET_MAILING_LIST+"/"+ panelistSearchBean.getMailingId() + "/contacts/" + panelistSearchBean.getContactId();
+		ObjectMapper mapper = new ObjectMapper();
+		String response = DAOUtils.updateUser(url, panelistSearchBean.getFirstName(), panelistSearchBean.getLastName(), panelistSearchBean.getEmailAddress(), panelistSearchBean.getOrganization());
+		System.out.println(response);
+		response = gpbcdao.updateUser(panelistSearchBean);
+		return response;
 	}
 }
