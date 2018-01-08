@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
@@ -29,6 +30,7 @@ public class GPBCDAO {
 	private GPBCDAO() {
 		try {
 			Class.forName(DAOUtils.MYSQL_CONNECTOR);
+			DriverManager.setLoginTimeout(3600);
 			conn = DriverManager.getConnection(DAOUtils.WBC_DB_CONNECTION, DAOUtils.WBC_DB_USERNAME,
 					DAOUtils.WBC_DB_PASSWORD);
 			stmt = conn.createStatement();
@@ -140,6 +142,7 @@ public class GPBCDAO {
 
 		int currentYear = Calendar.getInstance().get(Calendar.YEAR);
 		int currentMonth = Calendar.getInstance().get(Calendar.MONTH);
+		System.out.println("----------------------------------------------------"+ type.name());
 
 		if (type.equals(DAOUtils.GBPCConstructionType.RESIDENTIAL)) {
 			try {
@@ -148,12 +151,12 @@ public class GPBCDAO {
 						+ " (`year`, `organization`, `Q1`, `Q2`, `Q3`, `Q4`, `enabled`, `actuals`, `month`,`year_published`) "
 						+ "VALUES (?,?,?,?,?,?,?,?,?,?)";
 				preparedStatement = conn.prepareStatement(query);
-
 				for (String[] row : data) {
 					
 					if(isEmptyStringArray(row)) {
 						continue;
 					}
+					System.out.println(Arrays.toString(row));
 					preparedStatement.setInt(1, year);
 					preparedStatement.setString(2, row[0]);
 					preparedStatement.setString(3, row[1]);
@@ -178,6 +181,11 @@ public class GPBCDAO {
 				preparedStatement = conn.prepareStatement(query);
 
 				for (String[] row : data) {
+
+					if(isEmptyStringArray(row)) {
+						continue;
+					}
+					System.out.println(Arrays.toString(row));
 					preparedStatement.setInt(1, year);
 					preparedStatement.setString(2, row[0]);
 					preparedStatement.setString(3, row[1]);
@@ -193,6 +201,7 @@ public class GPBCDAO {
 				throw e;
 			}
 		}
+		System.out.println("----------------------------------------------------");
 	}
 
 	public String[] searchUser(String searchString) {
